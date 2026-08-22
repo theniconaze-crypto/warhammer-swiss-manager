@@ -6,6 +6,27 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Warhammer Tournaments</title>
+    <script type="text/javascript">
+      // Restauration du chemin après la redirection 404.html
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).reduce(function(acc, s) {
+            var pair = s.split('=');
+            acc[pair[0]] = decodeURIComponent(pair[1]);
+            return acc;
+          }, {});
+          if (decoded.p !== undefined) {
+            window.history.replaceState(null, null,
+                l.pathname.slice(0, -1) + (decoded.p || '') +
+                (decoded.q ? ('?' + decoded.q) : '') +
+                l.hash
+            );
+          }
+        }
+      }(window.location));
+    </script>
   </head>
   <body>
     <div id="root"></div>
