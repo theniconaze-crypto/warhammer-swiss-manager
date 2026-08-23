@@ -47,20 +47,47 @@ export const useAuthStore = create<AuthStore>()(
       ensureSeedAdmin: async () => {
         const { users } = get();
         if (users.length === 0) {
-          const passwordHash = await hashPassword(DEFAULT_ADMIN_PASSWORD);
+          const adminHash = await hashPassword(DEFAULT_ADMIN_PASSWORD);
           const admin: AppUser = {
             id: uuidv4(),
             username: DEFAULT_ADMIN_USERNAME,
-            passwordHash,
+            passwordHash: adminHash,
             role: 'admin',
             permissions: [],
             createdAt: new Date().toISOString(),
             mustChangePassword: true,
           };
-          set({ users: [admin], hydrated: true });
-        } else {
-          set({ hydrated: true });
+          const garazHash = await hashPassword('Slapchop');
+          const garaz: AppUser = {
+            id: uuidv4(),
+            username: 'Garaz',
+            passwordHash: garazHash,
+            role: 'organizer',
+            permissions: ['manage_tournaments', 'manage_players'],
+            createdAt: new Date().toISOString(),
+          };
+          set({ users: [admin, garaz], hydrated: true });
+          return;
         }
+
+        // Migration: if this browser was already seeded before the "Garaz"
+        // account existed, add it now so existing installs pick it up too.
+        const hasGaraz = users.some((u) => u.username.toLowerCase() === 'garaz');
+        if (!hasGaraz) {
+          const garazHash = await hashPassword('Slapchop');
+          const garaz: AppUser = {
+            id: uuidv4(),
+            username: 'Garaz',
+            passwordHash: garazHash,
+            role: 'organizer',
+            permissions: ['manage_tournaments', 'manage_players'],
+            createdAt: new Date().toISOString(),
+          };
+          set({ users: [...users, garaz], hydrated: true });
+          return;
+        }
+
+        set({ hydrated: true });
       },
 
       login: async (username, password) => {
