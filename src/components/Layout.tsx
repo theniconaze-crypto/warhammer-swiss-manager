@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Trophy, Users, Settings, Home } from 'lucide-react';
+import { Trophy, Users, Settings, Home, LogOut, UserCog } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,12 +22,36 @@ const NAV_ITEMS = [
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const { currentUser, logout } = useAuthStore();
+  const me = currentUser();
 
   // Hide bottom nav on certain sub-pages for immersive feel
   const hideNav = location.pathname.includes('/presentation');
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-gray-100">
+      {/* Top bar: current user + admin/logout actions */}
+      {me && (
+        <div className="flex items-center justify-between border-b border-gray-900 px-4 py-2.5 text-xs text-gray-500">
+          <span>
+            Connecté : <span className="text-gray-300">{me.username}</span>
+            {me.role === 'admin' && <span className="ml-1.5 text-amber-400">(admin)</span>}
+          </span>
+          <div className="flex items-center gap-3">
+            {me.role === 'admin' && (
+              <NavLink to="/users" className="flex items-center gap-1 hover:text-gray-300">
+                <UserCog className="h-3.5 w-3.5" />
+                Comptes
+              </NavLink>
+            )}
+            <button onClick={logout} className="flex items-center gap-1 hover:text-gray-300">
+              <LogOut className="h-3.5 w-3.5" />
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main content area */}
       <main
         className={`flex-1 overflow-y-auto ${hideNav ? '' : 'pb-20'}`}
