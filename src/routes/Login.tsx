@@ -94,10 +94,6 @@ export function Login() {
             {loading ? 'Connexion…' : 'Se connecter'}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-xs text-gray-600">
-          Compte par défaut : <span className="text-gray-500">admin / admin</span> — à changer après la première connexion.
-        </p>
       </div>
     </div>
   );
